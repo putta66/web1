@@ -105,32 +105,35 @@
     <video id="webcamVideo" class="hidden" playsinline></video>
 
     <!-- UI LAYER (HTML overlay) -->
-    <div id="uiContainer" class="relative z-10 w-full h-full pointer-events-none flex flex-col justify-between p-4 sm:p-6">
+    <div id="uiContainer" class="relative z-10 w-full h-full pointer-events-none flex flex-col justify-between p-3 sm:p-5">
 
-        <!-- Header / HUD (Score & Progress) -->
-        <div id="hud" class="w-full flex justify-between items-center transition-opacity duration-500 opacity-0">
-            <!-- Score Capsule -->
-            <div class="glass-pill rounded-full px-5 py-2 flex items-center gap-2">
-                <span class="text-xl sm:text-2xl font-bold text-slate-800">คะแนน:</span>
-                <span id="scoreText" class="text-2xl sm:text-4xl font-extrabold text-yellow-400 text-stroke-sm tracking-wider">0</span>
+        <!-- Header / HUD & Top Center Question Box -->
+        <div id="hud" class="w-full flex flex-col items-center gap-2 sm:gap-3 transition-opacity duration-500 opacity-0">
+            <!-- Top Bar: Score & Progress -->
+            <div class="w-full flex justify-between items-center">
+                <!-- Score Capsule -->
+                <div class="glass-pill rounded-full px-4 py-1.5 sm:px-6 sm:py-2 flex items-center gap-2">
+                    <span class="text-lg sm:text-2xl font-bold text-slate-800">คะแนน:</span>
+                    <span id="scoreText" class="text-2xl sm:text-4xl font-extrabold text-yellow-400 text-stroke-sm tracking-wider">0</span>
+                </div>
+
+                <!-- Question Counter Capsule -->
+                <div class="glass-pill rounded-full px-4 py-1.5 sm:px-6 sm:py-2 flex items-center gap-2">
+                    <span class="text-lg sm:text-2xl font-bold text-slate-800">ข้อที่:</span>
+                    <span class="text-2xl sm:text-4xl font-extrabold text-emerald-500 text-stroke-sm">
+                        <span id="currentQuestionText">1</span><span class="text-slate-600 text-lg sm:text-2xl">/20</span>
+                    </span>
+                </div>
             </div>
 
-            <!-- Question Counter Capsule -->
-            <div class="glass-pill rounded-full px-5 py-2 flex items-center gap-2">
-                <span class="text-xl sm:text-2xl font-bold text-slate-800">ข้อที่:</span>
-                <span class="text-2xl sm:text-4xl font-extrabold text-emerald-500 text-stroke-sm">
-                    <span id="currentQuestionText">1</span><span class="text-slate-600 text-xl sm:text-2xl">/20</span>
-                </span>
-            </div>
-        </div>
-
-        <!-- Question Box (Top Center during gameplay) -->
-        <div id="questionContainer" class="w-full max-w-xl mx-auto my-auto text-center transition-all duration-500 opacity-0 transform -translate-y-10">
-            <div class="bg-white/95 rounded-3xl p-5 sm:p-7 border-4 border-pink-400 shadow-2xl backdrop-blur-md">
-                <div class="text-xs sm:text-sm font-bold uppercase tracking-widest text-pink-500 mb-1">โจทย์คำถามภาษาไทย</div>
-                <h2 id="questionText" class="text-3xl sm:text-5xl font-extrabold text-blue-600 mb-2 leading-tight"></h2>
-                <div id="hintText" class="inline-block bg-pink-100 text-pink-600 font-semibold px-4 py-1.5 rounded-full text-base sm:text-xl border border-pink-200">
-                    คำใบ้จะปรากฏที่นี่
+            <!-- Question Box (Positioned Top Center) -->
+            <div id="questionContainer" class="w-full max-w-2xl text-center transition-all duration-500 opacity-0 transform -translate-y-5">
+                <div class="bg-white/95 rounded-2xl sm:rounded-3xl p-3 sm:p-5 border-4 border-pink-400 shadow-2xl backdrop-blur-md mx-auto">
+                    <div class="text-xs sm:text-sm font-bold uppercase tracking-widest text-pink-500 mb-0.5 sm:mb-1">โจทย์คำถามภาษาไทย</div>
+                    <h2 id="questionText" class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-blue-600 mb-1.5 leading-tight"></h2>
+                    <div id="hintText" class="inline-block bg-pink-100 text-pink-600 font-semibold px-3 py-1 sm:px-5 sm:py-1.5 rounded-full text-sm sm:text-lg border border-pink-200">
+                        คำใบ้จะปรากฏที่นี่
+                    </div>
                 </div>
             </div>
         </div>
@@ -167,6 +170,24 @@
                 <!-- Camera Status Indicator -->
                 <div id="cameraStatus" class="text-xs text-slate-700 bg-white/60 px-3 py-1 rounded-full mb-4">
                     📷 กำลังเตรียมระบบตรวจจับมือ AR...
+                </div>
+
+                <!-- Camera Error Alert Box (Hidden by default) -->
+                <div id="cameraErrorBox" class="hidden glass-dark text-red-200 text-xs sm:text-sm p-3 rounded-xl mb-4 text-left border border-red-400/50">
+                    <div class="font-bold text-red-400 mb-1 flex items-center gap-1.5">
+                        <span>⚠️ ไม่สามารถเปิดใช้งานกล้องได้</span>
+                    </div>
+                    <p id="cameraErrorMessage" class="text-white/90 text-xs mb-2 leading-relaxed">
+                        กล้องอาจถูกใช้งานโดยโปรแกรมอื่น (เช่น Zoom, Line, Meet) หรือไม่ได้รับสิทธิ์เข้าถึง
+                    </p>
+                    <div class="flex gap-2">
+                        <button onclick="retryCamera()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-3 py-1 rounded-lg font-bold text-xs transition">
+                            🔄 ลองเชื่อมต่อกล้องใหม่
+                        </button>
+                        <button onclick="dismissCameraError()" class="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-xs transition">
+                            🖱️ เล่นแบบไม่ใช้กล้อง
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Start Button -->
@@ -849,6 +870,9 @@
         // ==========================================
         const videoElement = document.getElementById('webcamVideo');
         const cameraStatusEl = document.getElementById('cameraStatus');
+        const cameraErrorBox = document.getElementById('cameraErrorBox');
+        const cameraErrorMessage = document.getElementById('cameraErrorMessage');
+        let cameraInstance = null;
 
         function onHandResults(results) {
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
@@ -886,7 +910,7 @@
 
                 hands.onResults(onHandResults);
 
-                const camera = new Camera(videoElement, {
+                cameraInstance = new Camera(videoElement, {
                     onFrame: async () => {
                         await hands.send({ image: videoElement });
                     },
@@ -894,17 +918,48 @@
                     height: 480
                 });
 
-                camera.start().then(() => {
+                cameraInstance.start().then(() => {
                     cameraStatusEl.innerText = "📷 เปิดกล้องสำเร็จ ยกนิ้วชี้ชี้ลูกโป่งได้เลย!";
+                    cameraStatusEl.className = "text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full mb-4 border border-emerald-300";
+                    cameraErrorBox.classList.add('hidden');
                 }).catch(err => {
-                    console.warn("Camera fallback triggered:", err);
-                    cameraStatusEl.innerText = "💡 ไม่พบกล้อง สามารถใช้เมาส์หรือสัมผัสแทนได้";
-                    cameraStatusEl.className = "text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full mb-4";
+                    console.warn("Camera error:", err);
+                    showCameraError(err);
                 });
             } catch (e) {
-                console.warn("MediaPipe init error, switching to touch fallback:", e);
-                cameraStatusEl.innerText = "💡 พร้อมเล่นด้วยระบบสัมผัสและเมาส์";
+                console.warn("MediaPipe init error:", e);
+                showCameraError(e);
             }
+        }
+
+        function showCameraError(err) {
+            let errorMsg = "กล้องอาจถูกใช้งานโดยโปรแกรมอื่น (NotReadableError) หรือไม่ได้รับอนุญาต";
+            if (err && err.name === 'NotAllowedError') {
+                errorMsg = "โปรดอนุญาตให้สิทธิ์เข้าถึงกล้องในเบราว์เซอร์เพื่อใช้งาน AR";
+            } else if (err && err.name === 'NotFoundError') {
+                errorMsg = "ไม่พบอุปกรณ์กล้องเว็บแคมบนเครื่องนี้";
+            }
+
+            cameraErrorMessage.innerText = errorMsg;
+            cameraErrorBox.classList.remove('hidden');
+            cameraStatusEl.innerText = "💡 พร้อมเล่นด้วยระบบสัมผัสและเมาส์ (ปิดโหมด AR)";
+            cameraStatusEl.className = "text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full mb-4";
+        }
+
+        function retryCamera() {
+            cameraErrorBox.classList.add('hidden');
+            cameraStatusEl.innerText = "📷 กำลังลองเชื่อมต่อกล้องใหม่อีกครั้ง...";
+            cameraStatusEl.className = "text-xs text-slate-700 bg-white/60 px-3 py-1 rounded-full mb-4";
+            if (cameraInstance) {
+                cameraInstance.stop();
+            }
+            setTimeout(() => {
+                initMediaPipeAR();
+            }, 500);
+        }
+
+        function dismissCameraError() {
+            cameraErrorBox.classList.add('hidden');
         }
 
         // ==========================================
@@ -920,7 +975,7 @@
 
             document.getElementById('startModal').classList.add('hidden');
             document.getElementById('hud').classList.remove('opacity-0');
-            document.getElementById('questionContainer').classList.remove('opacity-0', '-translate-y-10');
+            document.getElementById('questionContainer').classList.remove('opacity-0', '-translate-y-5');
             document.getElementById('scoreText').innerText = score;
 
             gameActive = true;
@@ -930,7 +985,6 @@
         function endGame() {
             gameActive = false;
             document.getElementById('hud').classList.add('opacity-0');
-            document.getElementById('questionContainer').classList.add('opacity-0');
 
             document.getElementById('finalScore').innerText = score;
             
